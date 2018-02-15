@@ -21,6 +21,7 @@ import (
 var (
 	procGetSystemTimeAsFileTime = common.Modkernel32.NewProc("GetSystemTimeAsFileTime")
 	osInfo                      *Win32_OperatingSystem
+	temperatureQuery = ""
 )
 
 type Win32_OperatingSystem struct {
@@ -29,6 +30,12 @@ type Win32_OperatingSystem struct {
 	ProductType    uint32
 	BuildNumber    string
 	LastBootUpTime time.Time
+}
+
+// Temperature
+type MSAcpi_ThermalZoneTemperature struct {
+	InstanceName       string
+	CurrentTemperature int
 }
 
 func Info() (*InfoStat, error) {
@@ -215,7 +222,21 @@ func SensorsTemperatures() ([]TemperatureStat, error) {
 }
 
 func SensorsTemperaturesWithContext(ctx context.Context) ([]TemperatureStat, error) {
-	return []TemperatureStat{}, common.ErrNotImplementedError
+	dst := []MSAcpi_ThermalZoneTemperature{}
+	if temperatureQuery == "" {
+		temperatureQuery = wmi.CreateQuery(&dst, "")
+	}
+	if err := wmi.QueryNamespace(temperatureQuery, &dst, `root\wmi`); err != nil {
+		return nil, err
+	}
+	ret := []TemperatureStat{}
+	for _, t := range dst {
+		ret = append(ret, TemperatureStat{
+			SensorKey: t.InstanceName,
+			Temperature: float64(t.CurrentTemperature) / 10.0 - 273.15, // Raw value is tenth of Kelvin -> To Celsius
+		})
+	}
+	return ret, nil
 }
 
 func Virtualization() (string, string, error) {
