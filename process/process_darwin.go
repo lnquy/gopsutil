@@ -13,9 +13,9 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/internal/common"
-	"github.com/shirou/gopsutil/net"
+	"github.com/lnquy/gopsutil/cpu"
+	"github.com/lnquy/gopsutil/internal/common"
+	"github.com/lnquy/gopsutil/net"
 	"golang.org/x/sys/unix"
 )
 

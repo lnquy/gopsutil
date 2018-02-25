@@ -8,7 +8,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/shirou/gopsutil/internal/common"
+	"github.com/lnquy/gopsutil/internal/common"
 	"golang.org/x/sys/windows"
 )
 
